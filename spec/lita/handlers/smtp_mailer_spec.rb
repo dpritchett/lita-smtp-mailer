@@ -14,7 +14,7 @@ describe Lita::Handlers::SmtpMailer, lita_handler: true do
     it { is_expected.to_not route("Lita email 1e4") }
 
     it 'succeeds' do
-      result = robot.deliver_mail(to_address: 'dpritchett@gmail.com', message_body: 'hello daniel')
+      result = subject.deliver_email(to_address: 'dpritchett@gmail.com', message_body: 'hello daniel')
       result.error_status == nil
     end
 
