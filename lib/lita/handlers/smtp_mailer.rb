@@ -6,18 +6,28 @@ module Lita
     class SmtpMailer < Handler
       Lita.register_handler(self)
 
-      route /^email\s+(\d+)$/i,
+      config :smtp_server, default: 'smtp.gmail.com'
+      config :smtp_password, default: ENV['SMTP_PASSWORD']
+      config :smtp_username, default: ENV['SMTP_USERNAME']
+      config :smtp_auth, default: 'plain'
+      config :smtp_port, default: 587
+      config :smtp_enable_tls_auto, default: true
+
+      # non-whitespace-chars@non-whitespace-chars
+      SIMPLE_EMAIL_REGEX = /\S+@\S+/
+
+      route /^email\s+(#{SIMPLE_EMAIL_REGEX})\s+(.+)$/i,
         :send_email,
         command: true,
-        help: { 'email N' => 'prints N + N' }
+        help: { 'email address@domain.com message body goes here' => 'Sends an email' }
 
       def deliver_email(to_address:, message_body:)
-        options = { :address              => "smtp.gmail.com",
-                    :port                 => 587,
-                    :user_name            => 'dpritchett@gmail.com',
-                    :password             => ENV.fetch('SMTP_PASSWORD'),
-                    :authentication       => 'plain',
-                    :enable_starttls_auto => true  }
+        options = { :address              => config.smtp_server,
+                    :port                 => config.smtp_port,
+                    :user_name            => config.smtp_username,
+                    :password             => config.smtp_password,
+                    :authentication       => config.smtp_auth,
+                    :enable_starttls_auto => config.smtp_enable_tls_auto }
 
 
 
@@ -34,8 +44,9 @@ module Lita
       end
 
       def send_email(response)
-        result = deliver_email to_address: 'dpritchett@gmail.com', message_body: 'testing sendmail'
-        response.reply 'OK'
+        to_address, message_body = response.matches.last
+        result = deliver_email to_address: to_address, message_body: message_body
+        response.reply "Sent email to [#{to_address}]."
       end
     end
   end

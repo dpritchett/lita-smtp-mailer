@@ -4,23 +4,32 @@ describe Lita::Handlers::SmtpMailer, lita_handler: true do
   let(:robot) { Lita::Robot.new(registry) }
 
   subject { described_class.new(robot) }
-  
+
   describe ':send_email' do
-    it { is_expected.to route("Lita email 2") }
-    it { is_expected.to route("Lita email    22") }
-    it { is_expected.to route("Lita email 4") }
+    it { is_expected.to route("Lita email dpritchett@gmail.com Hi daniel from lita tests") }
+    it { is_expected.to route("Lita email dpritchett@gmail.com hello") }
 
-    it { is_expected.to_not route("Lita email two") }
-    it { is_expected.to_not route("Lita email 1e4") }
+    it { is_expected.to_not route("Lita email daniel") }
+    it { is_expected.to_not route("Lita email dpritchett@gmail.com") }
 
+    it 'emails numbers' do
+      send_message 'Lita email dpritchett@gmail.com Hi daniel from lita tests'
+      expect(replies.last.include?('dpritchett@gmail.com')).to be_truthy
+    end
+  end
+
+  describe ':deliver_email smtp method' do
     it 'succeeds' do
       result = subject.deliver_email(to_address: 'dpritchett@gmail.com', message_body: 'hello daniel')
       result.error_status == nil
     end
 
-    it 'emails numbers' do
-      send_message 'Lita email 2'
-      expect(replies.last).to eq('2 + 2 = 4')
+    it 'is configured to raise exceptions on delivery failure' do
+      result = subject.deliver_email(
+        to_address: 'dpritchett+test_lita@gmail.com',
+        message_body: 'hello from lita test')
+
+      expect(result.raise_delivery_errors).to be_truthy
     end
   end
 end
