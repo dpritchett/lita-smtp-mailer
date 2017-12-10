@@ -40,7 +40,7 @@ module Lita
         result = Mail.deliver do
           to to_address
           from to_address
-          subject 'testing sendmail'
+          subject "[Lita bot] #{message_body.first(64)}"
           body message_body
         end
       end
