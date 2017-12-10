@@ -9,6 +9,7 @@ module Lita
       config :smtp_server, default: 'smtp.gmail.com'
       config :smtp_password, default: ENV['SMTP_PASSWORD']
       config :smtp_username, default: ENV['SMTP_USERNAME']
+      config :smtp_from_address, default: ENV['SMTP_FROM_ADDRESS']
       config :smtp_auth, default: 'plain'
       config :smtp_port, default: 587
       config :smtp_enable_tls_auto, default: true
@@ -34,12 +35,12 @@ module Lita
         end
       end
 
-      def deliver_email(to_address:, message_body:)
+      def deliver_email(to_address:, message_body:, from_address: config.smtp_from_address)
         configure_smtp!
 
         result = Mail.deliver do
           to to_address
-          from to_address
+          from from_address
           subject "[Lita bot] #{message_body.first(64)}"
           body message_body
         end
