@@ -33,8 +33,11 @@ describe Lita::Handlers::SmtpMailer, lita_handler: true do
 
   describe ':deliver_email smtp method' do
     it 'succeeds' do
-      result = subject.deliver_email(to_address: 'dpritchett@gmail.com', message_body: 'hello daniel')
-      result.error_status == nil
+      recipient = 'dpritchett@gmail.com'
+      result = subject.deliver_email(to_address: recipient, message_body: 'hello daniel')
+
+      expect(result.to_addrs.include?(recipient)).to be_truthy
+      expect(result.error_status).to be_nil
     end
 
     it 'is configured to raise exceptions on delivery failure' do
