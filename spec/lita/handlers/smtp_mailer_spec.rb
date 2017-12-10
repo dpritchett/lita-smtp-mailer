@@ -18,6 +18,19 @@ describe Lita::Handlers::SmtpMailer, lita_handler: true do
     end
   end
 
+  describe ':configure_smtp!' do
+    before { subject.configure_smtp! }
+    let(:settings) { Mail.delivery_method.settings }
+
+    it 'should set a password' do
+      expect(settings.fetch(:port)).to_not be_nil
+    end
+
+    it 'should set a port' do
+      expect(settings.fetch(:port)).to eq(587)
+    end
+  end
+
   describe ':deliver_email smtp method' do
     it 'succeeds' do
       result = subject.deliver_email(to_address: 'dpritchett@gmail.com', message_body: 'hello daniel')

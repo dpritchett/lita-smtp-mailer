@@ -21,7 +21,7 @@ module Lita
         command: true,
         help: { 'email address@domain.com message body goes here' => 'Sends an email' }
 
-      def deliver_email(to_address:, message_body:)
+      def configure_smtp!
         options = { :address              => config.smtp_server,
                     :port                 => config.smtp_port,
                     :user_name            => config.smtp_username,
@@ -29,11 +29,13 @@ module Lita
                     :authentication       => config.smtp_auth,
                     :enable_starttls_auto => config.smtp_enable_tls_auto }
 
-
-
         Mail.defaults do
           delivery_method :smtp, options
         end
+      end
+
+      def deliver_email(to_address:, message_body:)
+        configure_smtp!
 
         result = Mail.deliver do
           to to_address
